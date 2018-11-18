@@ -32,7 +32,6 @@ JumpManager.prototype.getDataTable = function () {
 	var dataTable = new google.visualization.DataTable({
 		cols: cols
 	});
-	console.log(rows);
 	dataTable.addRows(rows);
 	
 	return dataTable;
