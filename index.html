@@ -1,0 +1,71 @@
+<html>
+<head>
+<script src="node_modules/dygraphs/dist/dygraph.js"></script>
+<script src="node_modules/fileapi/dist/FileAPI.js"></script>
+<link rel="stylesheet" href="node_modules/dygraphs/dist/dygraph.css" />
+<script type="text/javascript" src="src/Jump.js"></script>
+<script type="text/javascript" src="src/JumpManager.js"></script>
+
+  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+  <script type="text/javascript">
+    google.charts.load('current', {packages: ['corechart']});
+  </script>
+</head>
+<body onload="load()">
+	<style>.dygraph-legend { text-align: right; background: none; }</style>
+	<div class="chart" id="div_g2" style="width:80%; height:60%; border: 1px solid darkgrey"></div>
+   <div>
+        <!-- "js-fileapi-wrapper" -- required class -->
+        <div class="js-fileapi-wrapper upload-btn">
+            <div class="upload-btn__txt">Choose files</div>
+            <input id="choose" name="file" type="file" multiple />
+        </div>
+        <div id="images"><!-- previews --></div>
+    </div>
+ 
+    <script>
+	function load() {
+        var dataTable = new google.visualization.DataTable({
+		cols: [ {id: 'time', label: 'Time', type: 'number'},
+				{id: 'altitude_of_' + this.jumpNumber, label: 'Jump ' + this.jumpNumber, type: 'number'}]
+		});
+        var choose = document.getElementById('choose');
+        FileAPI.event.on(choose, 'change', function (evt){
+			var files = FileAPI.getFiles(evt); // Retrieve file list
+			var jumpManager = new JumpManager(dataTable);
+			var countdown = files.length;
+			var createGraph = function(dataTable) {
+				new Dygraph(
+				document.getElementById("div_g2"),
+					dataTable, {
+					  rollPeriod: 30,
+					  legend: 'always',
+					  title: 'Jump Visualization',
+					  ylabel: 'Altitude in m',
+					  xlabel: 'Time in s',
+					  strokeWidth: 1.5
+					}
+				);
+			}
+			FileAPI.each(files, function (file){
+				FileAPI.readAsText(file, function (evt/**Object*/){
+					if( evt.type == 'load' ){
+						// Success
+						var jump = new Jump();
+						var test = evt.result + '';
+						jump.fileData = test;
+						jumpManager.addJump(jump);
+						countdown--;
+						if (countdown === 0) {
+							createGraph(jumpManager.getDataTable());
+						}
+					} 
+				})
+			});
+			
+			console.log(jumpManager.getDataTable())
+        });
+		}
+    </script> 
+</body>
+</html>
