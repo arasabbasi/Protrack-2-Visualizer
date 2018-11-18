@@ -1,4 +1,4 @@
-# ProtrackAltimeterGraph
+# Protrack 2 Visualizer
 Visualize Jump-Logs recorded by a Protrack 2 Altimeter
 
 
